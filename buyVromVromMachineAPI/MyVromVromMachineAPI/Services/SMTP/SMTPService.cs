@@ -32,7 +32,7 @@ namespace MyVromVromMachineAPI.SMTP
 
             using var SMTPClient = new SmtpClient("smtp.google.com")
             {
-                Port = 4221,
+                Port = 587,
                 EnableSsl = true,
                 Credentials = new NetworkCredential(SenderEmail, AppPassword)
             };
