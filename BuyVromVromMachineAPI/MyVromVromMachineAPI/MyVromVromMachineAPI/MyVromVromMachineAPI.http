@@ -1,6 +1,0 @@
-@MyVromVromMachineAPI_HostAddress = http://localhost:5187
-
-GET {{MyVromVromMachineAPI_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
