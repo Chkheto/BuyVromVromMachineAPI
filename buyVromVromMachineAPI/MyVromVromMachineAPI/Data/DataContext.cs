@@ -9,7 +9,14 @@ public class DataContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer(@"");
+        optionsBuilder.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=BuyVromVromDb;Trusted_Connection=True;TrustServerCertificate=True;");
     }
 
+    public DbSet<Car> Cars { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Car>().Property(c => c.Price).HasPrecision(18, 2);
+        modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
+    }
 }

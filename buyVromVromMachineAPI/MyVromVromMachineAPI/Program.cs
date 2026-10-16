@@ -1,8 +1,9 @@
 using FluentValidation;
-using MyVromVromMachineAPI.Validators;
+using Microsoft.EntityFrameworkCore;
 using MyVromVromMachineAPI.Data;
 using MyVromVromMachineAPI.helpers;
 using MyVromVromMachineAPI.Services.UserService;
+using MyVromVromMachineAPI.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,12 @@ builder.Services.AddValidatorsFromAssemblyContaining<UserValidator>();
 
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+    db.Database.Migrate();
+    DataSeeder.SeedCars(db);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

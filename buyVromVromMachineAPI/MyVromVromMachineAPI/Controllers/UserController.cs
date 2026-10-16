@@ -24,15 +24,14 @@ public class UserController : ControllerBase
         var result = _validator.Validate(req);
         if (!result.IsValid) return BadRequest(result.Errors);
 
-        var usertoadd = _us.Register(req);
-
+        if (!_us.Register(req)) return Conflict("email already registered");
         return Ok("user created successfully");
     }
 
     [HttpDelete("delete-user/{id}")]
     public IActionResult Delete(int id)
     {
-        var deleted = _us.DeleteUser(id);
+        if (!_us.DeleteUser(id)) return NotFound();
         return Ok("user deleted successfully");
     }
 
@@ -46,7 +45,8 @@ public class UserController : ControllerBase
     [HttpPost("login")]
     public IActionResult Login([FromBody] LoginRequest req)
     {
-        var result = _us.Login(req.Email, req.Password);
-        return Ok();
+        var user = _us.Login(req.Email, req.Password);
+        if (user == null) return Unauthorized("invalid email or password");
+        return Ok(new { user.Id, user.Fullname, user.Email });
     }
 }

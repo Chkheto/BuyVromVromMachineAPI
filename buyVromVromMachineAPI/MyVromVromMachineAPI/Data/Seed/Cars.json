@@ -1,0 +1,14 @@
+[
+  {
+    "brand": "Toyota",
+    "model": "Camry",
+    "year": 2020,
+    "price": 21500,
+    "mileage": 48000,
+    "fuelType": "Petrol",
+    "transmission": "Automatic",
+    "color": "White",
+    "imageUrl": null,
+    "isAvailable": true
+  }
+]

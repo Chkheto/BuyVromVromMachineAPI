@@ -48,27 +48,23 @@ public class UsersService : IUserService
 
     public bool UpdateUser(int id, EditUserRequest req)
     {
-        var userExists = _context.Users.FirstOrDefault(u => u.Id == id);
-        if (userExists == null) return false;
+        var user = _context.Users.FirstOrDefault(u => u.Id == id);
+        if (user == null) return false;
 
-        var mapped = _mapper.Map<User>(req);
-        _context.Users.Update(mapped);
+        user.Fullname = req.Fullname;
+        user.Age = req.Age;
+        user.Password = BCrypt.Net.BCrypt.HashPassword(req.Password);
+
         _context.SaveChanges();
-
         return true;
     }
 
-    public User Login(string email, string password)
+    public User? Login(string email, string password)
     {
-        var userexists = _context.Users.FirstOrDefault(u => u.Email == email &&
-        password == u.Password);
-
-        if (userexists == null) return null;
-        if (!BCrypt.Net.BCrypt.Verify(password, userexists.Password)) return null;
-
-        return userexists;
-
-
+        var user = _context.Users.FirstOrDefault(u => u.Email == email);
+        if (user == null) return null;
+        if (!BCrypt.Net.BCrypt.Verify(password, user.Password)) return null;
+        return user;
     }
 
     public bool Verify(string email, string code)

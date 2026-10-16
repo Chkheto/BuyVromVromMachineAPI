@@ -1,4 +1,4 @@
-﻿namespace MyVromVromMachineAPI.DTO.Requests
+﻿namespace MyVromVromMachineAPI.DTO.Request
 {
     public class LoginRequest
     {
