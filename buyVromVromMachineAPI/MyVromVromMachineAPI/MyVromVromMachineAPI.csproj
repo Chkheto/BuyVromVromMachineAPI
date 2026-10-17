@@ -37,6 +37,7 @@
   <ItemGroup>
     <Folder Include="Data\Seed\" />
     <Folder Include="MIgrations\" />
+    <Folder Include="Uploads\" />
   </ItemGroup>
 
 </Project>

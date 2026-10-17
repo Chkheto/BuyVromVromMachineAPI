@@ -2,7 +2,7 @@
 
 public class Car
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
     public string Brand { get; set; } = string.Empty;
     public string Model { get; set; } = string.Empty;
     public int Year { get; set; }
@@ -11,6 +11,6 @@ public class Car
     public string FuelType { get; set; } = string.Empty;
     public string Transmission { get; set; } = string.Empty;
     public string Color { get; set; } = string.Empty;
-    public string? ImageUrl { get; set; }
+    public string ImageUrl { get; set; }
     public bool IsAvailable { get; set; } = true;
 }
