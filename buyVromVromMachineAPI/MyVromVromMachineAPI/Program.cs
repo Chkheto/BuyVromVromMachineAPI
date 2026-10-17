@@ -4,6 +4,8 @@ using MyVromVromMachineAPI.Data;
 using MyVromVromMachineAPI.helpers;
 using MyVromVromMachineAPI.Services.UserService;
 using MyVromVromMachineAPI.Validators;
+using Microsoft.Extensions.FileProviders;
+using MyVromVromMachineAPI.Services.Cars;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +18,7 @@ builder.Services.AddDbContext<DataContext>();
 builder.Services.AddScoped<IUserService, UsersService>();
 builder.Services.AddAutoMapper(cnf => { }, typeof(UserMapper));
 builder.Services.AddValidatorsFromAssemblyContaining<UserValidator>();
+builder.Services.AddScoped<ICarService, CarService>();
 
 
 var app = builder.Build();
@@ -25,6 +28,14 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
     DataSeeder.SeedCars(db);
 }
+var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+Directory.CreateDirectory(uploadsPath);
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(uploadsPath),
+    RequestPath = "/uploads"
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

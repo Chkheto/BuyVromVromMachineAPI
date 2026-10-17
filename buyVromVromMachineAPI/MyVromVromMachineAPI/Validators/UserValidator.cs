@@ -27,6 +27,9 @@ public class UserValidator : AbstractValidator<RegisterRequest>
 
         RuleFor(x => x.Age)
             .InclusiveBetween(18, 120).WithMessage("You must be at least 18 years old");
+        RuleFor(x => x.PhoneNumber)
+            .NotEmpty().WithMessage("Phone number is required")
+            .Matches(@"^\+?[0-9]{9,15}$").WithMessage("Phone number format is invalid");
     }
 }
 

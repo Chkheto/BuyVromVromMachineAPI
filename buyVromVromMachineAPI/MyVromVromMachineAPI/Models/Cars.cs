@@ -11,6 +11,6 @@ public class Car
     public string FuelType { get; set; } = string.Empty;
     public string Transmission { get; set; } = string.Empty;
     public string Color { get; set; } = string.Empty;
-    public string ImageUrl { get; set; }
+    public string? ImageUrl { get; set; }
     public bool IsAvailable { get; set; } = true;
 }

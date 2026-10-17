@@ -8,6 +8,9 @@ public class CarMapper : Profile
 {
     public CarMapper()
     {
-        CreateMap<Car, AddCar>().ReverseMap();
+        CreateMap<AddCar, Car>()
+            .ForMember(d => d.Id, o => o.Ignore())
+            .ForMember(d => d.ImageUrl, o => o.Ignore())
+            .ForMember(d => d.IsAvailable, o => o.Ignore());
     }
 }

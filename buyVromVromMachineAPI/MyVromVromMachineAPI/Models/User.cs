@@ -10,6 +10,9 @@ public class User
     public string Password { get; set; }
     public int Age { get; set; }
     public bool IsVerified { get; set; } = false;
+    public string? VerificationCode { get; set; }
+    public DateTime? VerificationExpiry { get; set; }
+    public int VerificationAttempts { get; set; }
 
     public User() { }
 

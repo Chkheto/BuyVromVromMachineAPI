@@ -1,43 +1,45 @@
 ﻿using System.Net;
-using System.Net.Mail;
 using System.Security.Cryptography;
+using MailKit.Net.Smtp;
+using MailKit.Security;
+using MimeKit;
 
 namespace MyVromVromMachineAPI.SMTP
 {
     public class SMTPService
     {
-        public const string SenderEmail = "";
-        public const string AppPassword = "";
+        public const string SenderEmail = "chkhetianisandro@gmail.com";
+        public const string AppPassword = "YOUR-NEW-APP-PASSWORD";
 
         public static string GenerateCode() => RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
+
         public static async Task<string> SendEmail(string email, string username)
         {
             string code = GenerateCode();
+            string safeName = WebUtility.HtmlEncode(username);
 
             string htmlContent = $"""
                 <div style="font-family:Arial">
-                    <h2>Hallo, {username}!</h2>
-                    <p>this is your verafication code:</p>
+                    <h2>Hello, {safeName}!</h2>
+                    <p>This is your verification code:</p>
                     <h1 style="letter-spacing:6px">{code}</h1>
-                    <p>code will work for 5 minutes.</p>
+                    <p>The code will work for 5 minutes.</p>
                 </div>
                 """;
 
-            using var mail = new MailMessage();
-            mail.From = new MailAddress(SenderEmail, username);
-            mail.To.Add(email);
-            mail.Subject = "your code is here";
-            mail.Body = htmlContent;
-            mail.IsBodyHtml = true;
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress("BuyVromVrom", SenderEmail));
+            message.To.Add(MailboxAddress.Parse(email));
+            message.Subject = "Your verification code";
+            message.Body = new BodyBuilder { HtmlBody = htmlContent }.ToMessageBody();
 
-            using var SMTPClient = new SmtpClient("smtp.google.com")
-            {
-                Port = 587,
-                EnableSsl = true,
-                Credentials = new NetworkCredential(SenderEmail, AppPassword)
-            };
-            await SMTPClient.SendMailAsync(mail);
-            return htmlContent;
+            using var client = new SmtpClient();
+            await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
+            await client.AuthenticateAsync(SenderEmail, AppPassword);
+            await client.SendAsync(message);
+            await client.DisconnectAsync(true);
+
+            return code;
         }
     }
 }
