@@ -7,6 +7,7 @@ I'm indubitably not done yet!
 
 to-do list:
 1. add filters
-2. add add listing
-3. improve json file
+
+18/10/2026 3:36 chkheto: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
    
