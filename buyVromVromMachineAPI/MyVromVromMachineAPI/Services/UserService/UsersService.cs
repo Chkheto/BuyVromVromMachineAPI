@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MyVromVromMachineAPI.Data;
 using MyVromVromMachineAPI.DTO.Request;
+using MyVromVromMachineAPI.DTO.Requests.User;
 using MyVromVromMachineAPI.models;
 using MyVromVromMachineAPI.SMTP;
 

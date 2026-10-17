@@ -1,4 +1,5 @@
 ﻿using MyVromVromMachineAPI.DTO.Request;
+using MyVromVromMachineAPI.DTO.Requests.User;
 using MyVromVromMachineAPI.models;
 
 namespace MyVromVromMachineAPI.Services.UserService;

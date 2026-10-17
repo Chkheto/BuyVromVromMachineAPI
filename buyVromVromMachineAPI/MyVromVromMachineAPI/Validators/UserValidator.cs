@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using MyVromVromMachineAPI.DTO.Request;
+using MyVromVromMachineAPI.DTO.Requests.User;
 
 namespace MyVromVromMachineAPI.Validators;
 

@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DTO\Response\**" />
+    <Content Remove="DTO\Response\**" />
+    <EmbeddedResource Remove="DTO\Response\**" />
+    <None Remove="DTO\Response\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="16.2.0" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
     <PackageReference Include="FluentValidation" Version="12.1.1" />
@@ -29,7 +36,6 @@
 
   <ItemGroup>
     <Folder Include="Data\Seed\" />
-    <Folder Include="DTO\Response\" />
     <Folder Include="MIgrations\" />
   </ItemGroup>
 
