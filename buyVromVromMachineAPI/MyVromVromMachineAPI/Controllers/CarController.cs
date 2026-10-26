@@ -94,7 +94,7 @@ public class CarController : ControllerBase
         var user = Authenticate(request.SellerEmail, request.SellerPassword);
         if (user == null) return Unauthorized("invalid email or password");
 
-        if (user.Role != Roles.Seller && user.Role != Roles.Admin)
+        if (user.Role != Roles.Seller && !user.IsAdmin)
             return StatusCode(StatusCodes.Status403Forbidden, "only sellers and admins can add cars");
 
         await _carService.AddCar(request, user.Id);
@@ -156,7 +156,7 @@ public class CarController : ControllerBase
     }
 
     private static bool CanManage(AppUser user, Car car) =>
-        user.Role == Roles.Admin || (user.Role == Roles.Seller && car.SellerId == user.Id);
+        user.IsAdmin || (user.Role == Roles.Seller && car.SellerId == user.Id);
 
     private static void DeleteImageFile(string? imageUrl)
     {

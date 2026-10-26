@@ -1,5 +1,4 @@
-﻿
-namespace MyVromVromMachineAPI.models;
+﻿namespace MyVromVromMachineAPI.models;
 
 public class User
 {
@@ -14,6 +13,8 @@ public class User
     public DateTime? VerificationExpiry { get; set; }
     public int VerificationAttempts { get; set; }
     public string Role { get; set; } = Roles.Buyer;
+    public bool IsAdmin => Roles.IsAdminEmail(Email);
+
     public User() { }
 
     public User(int id, string fullname, string email, string phoneNumber, string password, int age, bool isVerified)

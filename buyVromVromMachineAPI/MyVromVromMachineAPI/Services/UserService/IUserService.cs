@@ -13,4 +13,6 @@ public interface IUserService
     public bool RequestCode(string email);
     public bool DeleteUser(string email, string password, string code);
     public bool UpdateUser(EditUserRequest req);
+    public User? FindById(int id);
+    public bool DeleteUserById(int id);
 }

@@ -164,5 +164,18 @@ public class UsersService : IUserService
         return user;
     }
 
+    public User? FindById(int id)
+    {
+        return _context.Users.FirstOrDefault(u => u.Id == id);
+    }
 
+    public bool DeleteUserById(int id)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.Id == id);
+        if (user == null) return false;
+
+        _context.Users.Remove(user);
+        _context.SaveChanges();
+        return true;
+    }
 }

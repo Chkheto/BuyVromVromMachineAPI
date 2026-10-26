@@ -4,6 +4,8 @@ using MyVromVromMachineAPI.DTO.Request;
 using MyVromVromMachineAPI.DTO.Requests;
 using MyVromVromMachineAPI.DTO.Requests.User;
 using MyVromVromMachineAPI.Services.UserService;
+using MyVromVromMachineAPI.models;
+using AppUser = MyVromVromMachineAPI.models.User;
 
 namespace WebApplication1.Controllers;
 
@@ -113,6 +115,51 @@ public class UserController : ControllerBase
         if (user == null) return Unauthorized("invalid email or password");
         if (!user.IsVerified) return StatusCode(StatusCodes.Status403Forbidden, "email not verified");
 
-        return Ok(new { user.Id, user.Fullname, user.Email, user.Role });
+        return Ok(new { user.Id, user.Fullname, user.Email, Role = user.IsAdmin ? Roles.Admin : user.Role });
+    }
+
+    [HttpGet("find-by-id/{id:int}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public IActionResult FindById(int id)
+    {
+        var user = _us.FindById(id);
+        if (user == null || !user.IsVerified || user.Role != Roles.Seller) return NotFound();
+
+        return Ok(new { user.Id, user.Fullname, user.Email, user.PhoneNumber });
+    }
+
+    [HttpPost("admin-delete-user")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public IActionResult AdminDelete([FromBody] AdminUserRequest req)
+    {
+        var (admin, error) = CheckAdmin(req.AdminEmail, req.AdminPassword);
+        if (error != null) return error;
+
+        if (admin!.Id == req.UserId)
+            return BadRequest("use delete-user to delete your own account");
+
+        if (!_us.DeleteUserById(req.UserId)) return NotFound();
+
+        return Ok("user deleted successfully");
+    }
+
+    private (AppUser? admin, IActionResult? error) CheckAdmin(string? email, string? password)
+    {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrEmpty(password))
+            return (null, Unauthorized("invalid email or password"));
+
+        var admin = _us.Login(email, password);
+        if (admin == null || !admin.IsVerified)
+            return (null, Unauthorized("invalid email or password"));
+
+        if (!admin.IsAdmin)
+            return (null, StatusCode(StatusCodes.Status403Forbidden, "admins only"));
+
+        return (admin, null);
     }
 }
