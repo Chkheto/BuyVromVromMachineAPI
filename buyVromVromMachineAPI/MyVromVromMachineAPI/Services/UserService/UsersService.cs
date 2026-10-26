@@ -11,7 +11,7 @@ public class UsersService : IUserService
 {
     private const int CodeLifetimeMinutes = 5;
     private const int MaxAttempts = 5;
-    private const int ResendCooldownSeconds = 60;
+    private const int ResendCooldownSeconds = 5;
     private readonly IMapper _mapper;
     private readonly DataContext _context;
 

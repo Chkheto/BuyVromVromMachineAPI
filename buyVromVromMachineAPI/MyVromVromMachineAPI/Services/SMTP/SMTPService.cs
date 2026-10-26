@@ -9,7 +9,7 @@ namespace MyVromVromMachineAPI.SMTP
     public class SMTPService
     {
         public const string SenderEmail = "chkhetianisandro@gmail.com";
-        public const string AppPassword = "YOUR-NEW-APP-PASSWORD";
+        public const string AppPassword = "wetqrycojvksqilu";
 
         public static string GenerateCode() => RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
 
@@ -28,7 +28,7 @@ namespace MyVromVromMachineAPI.SMTP
                 """;
 
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress("BuyVromVrom", SenderEmail));
+            message.From.Add(new MailboxAddress("BuyVromVromMachine", SenderEmail));
             message.To.Add(MailboxAddress.Parse(email));
             message.Subject = "Your verification code";
             message.Body = new BodyBuilder { HtmlBody = htmlContent }.ToMessageBody();
