@@ -350,4 +350,3 @@ C:\Users\PC\Desktop\buyVromVromMachineAPI\MyVromVromMachineAPI\bin\Debug\net10.0
 C:\Users\PC\Desktop\buyVromVromMachineAPI\MyVromVromMachineAPI\bin\Debug\net10.0\MimeKit.dll
 C:\Users\PC\Desktop\buyVromVromMachineAPI\MyVromVromMachineAPI\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\PC\Desktop\buyVromVromMachineAPI\MyVromVromMachineAPI\bin\Debug\net10.0\Microsoft.Bcl.Cryptography.dll
-C:\Users\PC\Desktop\buyVromVromMachineAPI\MyVromVromMachineAPI\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
