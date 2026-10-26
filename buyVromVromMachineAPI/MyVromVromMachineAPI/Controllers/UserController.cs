@@ -38,12 +38,14 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("update-user/{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult Update(int id, [FromBody] EditUserRequest req)
     {
-        var updated = _us.UpdateUser(id, req);
         if (!_us.UpdateUser(id, req)) return NotFound();
         return Ok("user updated successfully");
     }
+
     [HttpPost("verify")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -93,7 +93,7 @@ public class UsersService : IUserService
 
         try
         {
-            SMTPService.SendEmail(user.Email, user.Fullname).GetAwaiter().GetResult();
+            SMTPService.SendEmail(user.Email, user.Fullname, code).GetAwaiter().GetResult();
         }
         catch (Exception ex)
         {

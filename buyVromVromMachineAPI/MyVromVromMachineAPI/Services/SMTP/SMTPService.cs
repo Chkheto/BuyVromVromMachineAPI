@@ -13,9 +13,9 @@ namespace MyVromVromMachineAPI.SMTP
 
         public static string GenerateCode() => RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
 
-        public static async Task<string> SendEmail(string email, string username)
+        public static async Task SendEmail(string email, string username, string code)
         {
-            string code = GenerateCode();
+
             string safeName = WebUtility.HtmlEncode(username);
 
             string htmlContent = $"""
@@ -39,7 +39,6 @@ namespace MyVromVromMachineAPI.SMTP
             await client.SendAsync(message);
             await client.DisconnectAsync(true);
 
-            return code;
         }
     }
 }
