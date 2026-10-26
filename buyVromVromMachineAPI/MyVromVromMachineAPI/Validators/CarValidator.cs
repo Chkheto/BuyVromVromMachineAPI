@@ -17,6 +17,8 @@ public class CarValidator : AbstractValidator<AddCar>
         RuleFor(x => x.Price).GreaterThan(0);
         RuleFor(x => x.Mileage).GreaterThanOrEqualTo(0);
         RuleFor(x => x.Color).NotEmpty().MaximumLength(30);
+        RuleFor(x => x.SellerEmail).NotEmpty().EmailAddress();
+        RuleFor(x => x.SellerPassword).NotEmpty();
 
         RuleFor(x => x.FuelType)
             .Must(f => FuelTypes.Contains(f, StringComparer.OrdinalIgnoreCase))

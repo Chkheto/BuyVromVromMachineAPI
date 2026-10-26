@@ -113,6 +113,6 @@ public class UserController : ControllerBase
         if (user == null) return Unauthorized("invalid email or password");
         if (!user.IsVerified) return StatusCode(StatusCodes.Status403Forbidden, "email not verified");
 
-        return Ok(new { user.Id, user.Fullname, user.Email });
+        return Ok(new { user.Id, user.Fullname, user.Email, user.Role });
     }
 }

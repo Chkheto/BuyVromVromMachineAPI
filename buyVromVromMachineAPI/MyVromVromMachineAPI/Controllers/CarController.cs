@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using MyVromVromMachineAPI.Data;
 using MyVromVromMachineAPI.DTO.Requests.Cars;
 using MyVromVromMachineAPI.Services.Cars;
+using MyVromVromMachineAPI.models;
+using MyVromVromMachineAPI.Services.UserService;
+using AppUser = MyVromVromMachineAPI.models.User;
 
 namespace MyVromVromMachineAPI.Controllers;
 
@@ -13,12 +16,14 @@ public class CarController : ControllerBase
 {
     private readonly DataContext _context;
     private readonly ICarService _carService;
+    private readonly IUserService _users;
     private readonly IValidator<AddCar> _validator;
 
-    public CarController(DataContext context, ICarService carService, IValidator<AddCar> validator)
+    public CarController(DataContext context, ICarService carService, IUserService users, IValidator<AddCar> validator)
     {
         _context = context;
         _carService = carService;
+        _users = users;
         _validator = validator;
     }
 
@@ -77,21 +82,40 @@ public class CarController : ControllerBase
 
     [HttpPost]
     [Consumes("multipart/form-data")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Add([FromForm] AddCar request)
     {
         var result = await _validator.ValidateAsync(request);
         if (!result.IsValid) return BadRequest(result.Errors);
 
-        await _carService.AddCar(request);
+        var user = Authenticate(request.SellerEmail, request.SellerPassword);
+        if (user == null) return Unauthorized("invalid email or password");
+
+        if (user.Role != Roles.Seller && user.Role != Roles.Admin)
+            return StatusCode(StatusCodes.Status403Forbidden, "only sellers and admins can add cars");
+
+        await _carService.AddCar(request, user.Id);
         return Ok("car added successfully");
     }
-    [HttpDelete("{id:guid}")]
+
+    [HttpPost("{id:guid}/remove")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Remove(Guid id)
+    public async Task<IActionResult> Remove(Guid id, [FromBody] RemoveCarRequest req)
     {
+        var user = Authenticate(req.Email, req.Password);
+        if (user == null) return Unauthorized("invalid email or password");
+
         var car = await _context.Cars.FindAsync(id);
         if (car == null) return NotFound();
+
+        if (!CanManage(user, car))
+            return StatusCode(StatusCodes.Status403Forbidden, "only an admin or the seller of this car can remove it");
 
         DeleteImageFile(car.ImageUrl);
 
@@ -100,6 +124,39 @@ public class CarController : ControllerBase
 
         return Ok("car removed successfully");
     }
+
+    [HttpPatch("{id:guid}/availability")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SetAvailability(Guid id, [FromBody] SetAvailabilityRequest req)
+    {
+        var user = Authenticate(req.Email, req.Password);
+        if (user == null) return Unauthorized("invalid email or password");
+
+        var car = await _context.Cars.FindAsync(id);
+        if (car == null) return NotFound();
+
+        if (!CanManage(user, car))
+            return StatusCode(StatusCodes.Status403Forbidden, "only an admin or the seller of this car can change it");
+
+        car.IsAvailable = req.IsAvailable;
+        await _context.SaveChangesAsync();
+
+        return Ok(req.IsAvailable ? "car is listed again" : "car removed from the listing");
+    }
+
+    private AppUser? Authenticate(string? email, string? password)
+    {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrEmpty(password)) return null;
+
+        var user = _users.Login(email, password);
+        return user != null && user.IsVerified ? user : null;
+    }
+
+    private static bool CanManage(AppUser user, Car car) =>
+        user.Role == Roles.Admin || (user.Role == Roles.Seller && car.SellerId == user.Id);
 
     private static void DeleteImageFile(string? imageUrl)
     {
@@ -111,18 +168,5 @@ public class CarController : ControllerBase
 
         if (fullPath.StartsWith(uploadsRoot) && System.IO.File.Exists(fullPath))
             System.IO.File.Delete(fullPath);
-    }
-    [HttpPatch("{id:guid}/availability")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> SetAvailability(Guid id, [FromQuery] bool isAvailable)
-    {
-        var car = await _context.Cars.FindAsync(id);
-        if (car == null) return NotFound();
-
-        car.IsAvailable = isAvailable;
-        await _context.SaveChangesAsync();
-
-        return Ok(isAvailable ? "car is listed again" : "car removed from the listing");
     }
 }

@@ -30,6 +30,8 @@ public class UsersService : IUserService
 
         var userToCreate = _mapper.Map<User>(req);
 
+        userToCreate.Role = req.IsSeller ? Roles.Seller : Roles.Buyer;
+
         _context.Users.Add(userToCreate);
         _context.SaveChanges();
 

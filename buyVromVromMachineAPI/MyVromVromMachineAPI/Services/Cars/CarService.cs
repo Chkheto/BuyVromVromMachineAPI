@@ -16,9 +16,10 @@ namespace MyVromVromMachineAPI.Services.Cars
             _mapper = mapper;
         }
 
-        public async Task<bool> AddCar(AddCar request)
+        public async Task<bool> AddCar(AddCar request, int sellerId)
         {
             var car = _mapper.Map<Car>(request);
+            car.SellerId = sellerId;
 
             if (request.ImageUrl is not null && request.ImageUrl.Length > 0)
             {

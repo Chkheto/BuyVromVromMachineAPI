@@ -4,5 +4,5 @@ namespace MyVromVromMachineAPI.Services.Cars;
 
 public interface ICarService
 {
-    Task<bool> AddCar(AddCar car);
+    Task<bool> AddCar(AddCar car, int sellerId);
 }

@@ -10,5 +10,7 @@ public class AddCar
     public string FuelType { get; set; } = string.Empty;
     public string Transmission { get; set; } = string.Empty;
     public string Color { get; set; } = string.Empty;
+    public string SellerEmail { get; set; } = string.Empty;
+    public string SellerPassword { get; set; } = string.Empty;
     public IFormFile? ImageUrl { get; set; }
 }

@@ -13,4 +13,5 @@ public class Car
     public string Color { get; set; } = string.Empty;
     public string? ImageUrl { get; set; }
     public bool IsAvailable { get; set; } = true;
+    public int? SellerId { get; set; }
 }

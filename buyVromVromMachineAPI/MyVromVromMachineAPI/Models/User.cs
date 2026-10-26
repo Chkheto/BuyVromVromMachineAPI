@@ -13,7 +13,7 @@ public class User
     public string? VerificationCode { get; set; }
     public DateTime? VerificationExpiry { get; set; }
     public int VerificationAttempts { get; set; }
-
+    public string Role { get; set; } = Roles.Buyer;
     public User() { }
 
     public User(int id, string fullname, string email, string phoneNumber, string password, int age, bool isVerified)

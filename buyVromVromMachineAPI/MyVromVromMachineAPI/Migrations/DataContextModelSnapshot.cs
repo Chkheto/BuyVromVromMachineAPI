@@ -57,6 +57,9 @@ namespace MyVromVromMachineAPI.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int?>("SellerId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Transmission")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -65,6 +68,8 @@ namespace MyVromVromMachineAPI.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SellerId");
 
                     b.ToTable("Cars");
                 });
@@ -99,6 +104,13 @@ namespace MyVromVromMachineAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasDefaultValue("Buyer");
+
                     b.Property<int>("VerificationAttempts")
                         .HasColumnType("int");
 
@@ -114,6 +126,14 @@ namespace MyVromVromMachineAPI.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("MyVromVromMachineAPI.models.Car", b =>
+                {
+                    b.HasOne("MyVromVromMachineAPI.models.User", null)
+                        .WithMany()
+                        .HasForeignKey("SellerId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 #pragma warning restore 612, 618
         }
