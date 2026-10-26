@@ -10,6 +10,7 @@ public interface IUserService
     public User? Login(string email, string password);
     public bool Verify(string email, string code);
     public bool ResendCode(string email);
-    public bool DeleteUser(int id);
-    public bool UpdateUser(int id, EditUserRequest req);
+    public bool RequestCode(string email);
+    public bool DeleteUser(string email, string password, string code);
+    public bool UpdateUser(EditUserRequest req);
 }

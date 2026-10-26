@@ -13,14 +13,25 @@ public class UserController : ControllerBase
 {
     private readonly IUserService _us;
     private readonly IValidator<RegisterRequest> _validator;
+    private readonly IValidator<EditUserRequest> _editValidator;
+    private readonly IValidator<DeleteUserRequest> _deleteValidator;
 
-    public UserController(IUserService us, IValidator<RegisterRequest> validator)
+    public UserController(
+        IUserService us,
+        IValidator<RegisterRequest> validator,
+        IValidator<EditUserRequest> editValidator,
+        IValidator<DeleteUserRequest> deleteValidator)
     {
         _us = us;
         _validator = validator;
+        _editValidator = editValidator;
+        _deleteValidator = deleteValidator;
     }
 
     [HttpPost("register")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public IActionResult Register([FromBody] RegisterRequest req)
     {
         var result = _validator.Validate(req);
@@ -30,19 +41,40 @@ public class UserController : ControllerBase
         return Ok("user created successfully");
     }
 
-    [HttpDelete("delete-user/{id}")]
-    public IActionResult Delete(int id)
+    [HttpPost("request-code")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public IActionResult RequestCode([FromBody] RequestCodeRequest req)
     {
-        if (!_us.DeleteUser(id)) return NotFound();
+        if (!string.IsNullOrWhiteSpace(req.Email)) _us.RequestCode(req.Email);
+        return Ok("if the account exists, a code was sent to its email");
+    }
+
+    [HttpPost("delete-user")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public IActionResult Delete([FromBody] DeleteUserRequest req)
+    {
+        var result = _deleteValidator.Validate(req);
+        if (!result.IsValid) return BadRequest(result.Errors);
+
+        if (!_us.DeleteUser(req.Email, req.Password, req.Code))
+            return Unauthorized("invalid email, password or code");
+
         return Ok("user deleted successfully");
     }
 
-    [HttpPut("update-user/{id}")]
+    [HttpPut("update-user")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public IActionResult Update(int id, [FromBody] EditUserRequest req)
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public IActionResult Update([FromBody] EditUserRequest req)
     {
-        if (!_us.UpdateUser(id, req)) return NotFound();
+        var result = _editValidator.Validate(req);
+        if (!result.IsValid) return BadRequest(result.Errors);
+
+        if (!_us.UpdateUser(req)) return Unauthorized("invalid email, password or code");
+
         return Ok("user updated successfully");
     }
 

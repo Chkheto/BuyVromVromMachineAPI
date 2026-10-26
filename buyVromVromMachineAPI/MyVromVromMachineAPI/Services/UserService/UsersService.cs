@@ -43,6 +43,74 @@ public class UsersService : IUserService
         var user = _context.Users.FirstOrDefault(u => u.Email == email);
         if (user == null) return false;
         if (user.IsVerified) return true;
+        if (!ConsumeCode(user, code)) return false;
+
+        user.IsVerified = true;
+        _context.SaveChanges();
+        return true;
+    }
+
+    public bool ResendCode(string email)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.Email == email);
+        if (user == null || user.IsVerified || OnCooldown(user)) return false;
+
+        IssueCode(user);
+        return true;
+    }
+
+    public bool RequestCode(string email)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.Email == email);
+        if (user == null || !user.IsVerified || OnCooldown(user)) return false;
+
+        IssueCode(user);
+        return true;
+    }
+
+    public bool DeleteUser(string email, string password, string code)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.Email == email);
+        if (user == null || !user.IsVerified) return false;
+        if (!BCrypt.Net.BCrypt.Verify(password, user.Password)) return false;
+        if (!ConsumeCode(user, code)) return false;
+
+        _context.Users.Remove(user);
+        _context.SaveChanges();
+        return true;
+    }
+
+    public bool UpdateUser(EditUserRequest req)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.Email == req.Email);
+        if (user == null || !user.IsVerified) return false;
+
+        bool authorized;
+        if (!string.IsNullOrEmpty(req.CurrentPassword))
+            authorized = BCrypt.Net.BCrypt.Verify(req.CurrentPassword, user.Password);
+        else
+            authorized = !string.IsNullOrEmpty(req.Code) && ConsumeCode(user, req.Code);
+
+        if (!authorized) return false;
+
+        if (!string.IsNullOrWhiteSpace(req.Fullname)) user.Fullname = req.Fullname;
+        if (req.Age.HasValue) user.Age = req.Age.Value;
+        if (!string.IsNullOrEmpty(req.NewPassword))
+            user.Password = BCrypt.Net.BCrypt.HashPassword(req.NewPassword);
+
+        _context.SaveChanges();
+        return true;
+    }
+
+    private bool OnCooldown(User user)
+    {
+        if (!user.VerificationExpiry.HasValue) return false;
+        var issuedAt = user.VerificationExpiry.Value.AddMinutes(-CodeLifetimeMinutes);
+        return issuedAt.AddSeconds(ResendCooldownSeconds) > DateTime.UtcNow;
+    }
+
+    private bool ConsumeCode(User user, string code)
+    {
         if (user.VerificationCode == null || user.VerificationExpiry == null) return false;
         if (user.VerificationExpiry < DateTime.UtcNow) return false;
         if (user.VerificationAttempts >= MaxAttempts) return false;
@@ -54,27 +122,10 @@ public class UsersService : IUserService
             return false;
         }
 
-        user.IsVerified = true;
         user.VerificationCode = null;
         user.VerificationExpiry = null;
         user.VerificationAttempts = 0;
         _context.SaveChanges();
-
-        return true;
-    }
-
-    public bool ResendCode(string email)
-    {
-        var user = _context.Users.FirstOrDefault(u => u.Email == email);
-        if (user == null || user.IsVerified) return false;
-
-        if (user.VerificationExpiry.HasValue)
-        {
-            var issuedAt = user.VerificationExpiry.Value.AddMinutes(-CodeLifetimeMinutes);
-            if (issuedAt.AddSeconds(ResendCooldownSeconds) > DateTime.UtcNow) return false;
-        }
-
-        IssueCode(user);
         return true;
     }
 
@@ -101,29 +152,7 @@ public class UsersService : IUserService
         }
     }
 
-    public bool DeleteUser(int id)
-    {
-        var userExists = _context.Users.FirstOrDefault(u => u.Id == id);
-        if (userExists == null) return false;
 
-        _context.Users.Remove(userExists);
-        _context.SaveChanges();
-
-        return true;
-    }
-
-    public bool UpdateUser(int id, EditUserRequest req)
-    {
-        var user = _context.Users.FirstOrDefault(u => u.Id == id);
-        if (user == null) return false;
-
-        user.Fullname = req.Fullname;
-        user.Age = req.Age;
-        user.Password = BCrypt.Net.BCrypt.HashPassword(req.Password);
-
-        _context.SaveChanges();
-        return true;
-    }
 
     public User? Login(string email, string password)
     {

@@ -85,4 +85,44 @@ public class CarController : ControllerBase
         await _carService.AddCar(request);
         return Ok("car added successfully");
     }
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Remove(Guid id)
+    {
+        var car = await _context.Cars.FindAsync(id);
+        if (car == null) return NotFound();
+
+        DeleteImageFile(car.ImageUrl);
+
+        _context.Cars.Remove(car);
+        await _context.SaveChangesAsync();
+
+        return Ok("car removed successfully");
+    }
+
+    private static void DeleteImageFile(string? imageUrl)
+    {
+        if (string.IsNullOrEmpty(imageUrl) || !imageUrl.StartsWith("/uploads/")) return;
+
+        var uploadsRoot = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "uploads")) + Path.DirectorySeparatorChar;
+        var relative = imageUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+        var fullPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), relative));
+
+        if (fullPath.StartsWith(uploadsRoot) && System.IO.File.Exists(fullPath))
+            System.IO.File.Delete(fullPath);
+    }
+    [HttpPatch("{id:guid}/availability")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SetAvailability(Guid id, [FromQuery] bool isAvailable)
+    {
+        var car = await _context.Cars.FindAsync(id);
+        if (car == null) return NotFound();
+
+        car.IsAvailable = isAvailable;
+        await _context.SaveChangesAsync();
+
+        return Ok(isAvailable ? "car is listed again" : "car removed from the listing");
+    }
 }
