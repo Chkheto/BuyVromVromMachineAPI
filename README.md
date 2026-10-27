@@ -1,7 +1,9 @@
 Carrrrrrrrrrrrrrrrrrrrrrr gooooooooooooooooo vruuuututututututtututututututtuttutututututtutututututu and tsutututututututututtutuututtutututututtututu (turbo(the movie snail))
 
-gega speaking, it WOULDN'T UPLOAD THE FILE ITSELF SO I HAD TO ADD THEM ONE BY ONE 🥀. sorry for doin a mess lol (13/10/2026)
-chkheto: U SUCK ASS!!!(10/13/2026)
-gg: i know :cry:
+if running the API normally does not work go to developer powershell and type this:
 
-chkheto: good be less of an ass next time!
+cd MyVromVromMachineAPI
+
+dotnet build
+
+dotnet run --launch-profile http
